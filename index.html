@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#dc2626">
+<title>UGAVEST | Investment Platform</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,Helvetica,sans-serif}
+html,body{width:100%;max-width:100%;overflow-x:hidden}
+body{background:#0b0b0f;color:#f3f4f6}
+.auth-screen{min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#991b1b,#dc2626)}
+.auth-card{width:100%;max-width:450px;background:#fff;border-radius:18px;padding:30px;box-shadow:0 15px 40px rgba(0,0,0,.2)}
+.auth-logo{text-align:center;font-size:30px;font-weight:800;color:#b91c1c}
+.auth-subtitle{text-align:center;color:#6b7280;margin:8px 0 25px}
+.auth-form{display:none}.auth-form.active{display:block}
+.form-group{margin-bottom:16px}.form-group label{display:block;margin-bottom:7px;font-weight:600;font-size:14px}
+.form-group input,.form-group select{width:100%;min-height:46px;padding:12px;border:1px solid #3f3f46;border-radius:8px;font-size:16px;outline:none}
+.form-group input:focus,.form-group select:focus{border-color:#dc2626}
+.primary-btn{width:100%;min-height:46px;padding:13px;border:0;border-radius:9px;background:#dc2626;color:#fff;font-size:15px;font-weight:bold;cursor:pointer}
+.whatsapp-submit-btn{width:100%;min-height:48px;margin-top:12px;padding:13px;border:0;border-radius:9px;background:#9ca3af;color:#fff;font-size:15px;font-weight:bold;cursor:not-allowed;opacity:.8}
+.whatsapp-submit-btn.unlocked{background:#25D366;cursor:pointer;opacity:1}
+
+.contact-manager-btn{margin-top:12px;padding:10px 18px;border:0;border-radius:8px;background:#25D366;color:#fff;font-size:14px;font-weight:bold;cursor:pointer}
+.contact-manager-btn:hover{opacity:.9}
+
+.switch-auth{text-align:center;margin-top:18px;color:#6b7280}.switch-auth span{color:#dc2626;font-weight:bold;cursor:pointer}
+.error,.success{display:none;padding:11px;border-radius:8px;margin-bottom:15px;font-size:14px;line-height:1.5}
+.error{background:#fef2f2;border:1px solid #fecaca;color:#b91c1c}.success{background:#ecfdf5;border:1px solid #bbf7d0;color:#166534}
+#app{display:none;width:100%}
+header{height:65px;width:100%;background:#15151b;border-bottom:1px solid #292932;display:flex;align-items:center;justify-content:center;padding:0 25px;position:sticky;top:0;z-index:20}.logo{position:absolute;left:60px;transform:none}
+.logo{font-size:24px;font-weight:800;color:#dc2626}.header-right{display:flex;align-items:center;gap:12px}
+.avatar{width:38px;height:38px;border-radius:50%;background:#dc2626;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:bold}
+.logout-btn{border:0;background:#fee2e2;color:#b91c1c;padding:9px 13px;border-radius:7px;cursor:pointer;font-weight:bold}
+.layout{display:flex;min-height:calc(100vh - 65px);width:100%}
+.sidebar{width:235px;flex-shrink:0;background:#111827;color:#fff;padding:25px 15px}.sidebar h3{font-size:13px;color:#9ca3af;margin:10px 12px;text-transform:uppercase}
+.sidebar a{display:block;padding:13px 15px;margin:4px 0;color:#d1d5db;text-decoration:none;border-radius:8px;cursor:pointer}
+.sidebar a:hover,.sidebar a.active{background:#b91c1c;color:#fff}.withdraw-nav.ready{background:#15803d;color:#fff}
+.main{flex:1;width:100%;max-width:1450px;padding:30px;min-width:0}
+.welcome{margin-bottom:25px}.welcome h1{font-size:28px;margin-bottom:6px}.welcome p{color:#6b7280}
+.user-id{display:inline-block;margin-top:10px;background:#fef2f2;color:#b91c1c;padding:8px 12px;border-radius:8px;font-weight:bold;overflow-wrap:anywhere}
+.notification{display:none;background:#ecfdf5;border:1px solid #86efac;color:#166534;padding:15px;border-radius:10px;margin-bottom:20px;line-height:1.5}.notification.show{display:block}
+.hero{background:linear-gradient(135deg,#b91c1c,#dc2626);color:#fff;padding:30px;border-radius:16px;margin-bottom:25px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.hero h2{margin-bottom:8px}.hero p{color:#fee2e2}.start-btn{background:#fff;color:#b91c1c;border:0;padding:14px 23px;border-radius:9px;font-weight:bold;cursor:pointer}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-bottom:25px}
+.card{background:#15151b;padding:22px;border-radius:14px;border:1px solid #292932;min-width:0}.card-title{font-size:13px;color:#6b7280;margin-bottom:10px}
+.card-value{font-size:23px;font-weight:700;overflow-wrap:anywhere}
+.section{background:#15151b;border-radius:15px;padding:25px;margin-bottom:25px;border:1px solid #292932;width:100%}.section h2{margin-bottom:20px}
+.plans{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}.plan{border:1px solid #292932;padding:20px;border-radius:12px;min-width:0}.plan p{color:#6b7280;margin-top:8px}
+.rate{color:#16a34a;font-weight:bold;margin:12px 0}.invest-btn{width:100%;min-height:46px;border:0;padding:14px;background:#dc2626;color:#fff;border-radius:8px;font-weight:bold;cursor:pointer}
+.table-container{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:13px;border-bottom:1px solid #e5e7eb}th{color:#6b7280;font-size:13px}
+.status-active{color:#b45309;font-weight:bold}.status-matured{color:#15803d;font-weight:bold}.status-pending{color:#b45309;font-weight:bold}.countdown{font-weight:bold;color:#dc2626}
+.maturity-box{background:#fef2f2;border:1px solid #fecaca;padding:15px;border-radius:10px;margin-top:15px;line-height:1.5}.withdraw-panel.locked{background:#f5f5f5;color:#9ca3af}.withdraw-panel.ready{background:#f0fdf4;border-color:#86efac;color:#172033}.withdraw-status.locked{background:#e5e7eb;color:#6b7280}.withdraw-status.ready{background:#dcfce7;color:#166534}.withdraw-btn:disabled{background:#d1d5db;color:#6b7280;cursor:not-allowed}.withdraw-btn.enabled{background:#16a34a;color:#fff}
+
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;padding:20px;overflow-y:auto}.modal-content{width:100%;max-width:620px;background:#15151b;margin:40px auto;border-radius:15px;padding:25px;position:relative}
+.close{position:absolute;right:18px;top:12px;font-size:28px;cursor:pointer;color:#6b7280}
+.payment-options{display:grid;grid-template-columns:1fr;gap:15px;margin-top:15px}.payment-option{border:2px solid #292932;padding:20px;border-radius:12px;cursor:pointer;text-align:center}
+.payment-option.selected,.payment-option:hover{border-color:#dc2626;background:#fef2f2}.payment-icon{font-size:30px;margin-bottom:8px}.payment-option p{color:#6b7280;font-size:13px;margin-top:5px}
+.payment-panel{display:none;margin-top:20px;padding:20px;background:#111118;border:1px solid #292932;border-radius:12px}.payment-panel.active{display:block}
+.instructions{background:#1b1b23;border-radius:10px;padding:16px;border:1px solid #292932}.instructions p{padding:10px 0;border-bottom:1px solid #eee;line-height:1.5}.instructions p:last-child{border-bottom:0}
+.number{font-weight:bold;overflow-wrap:anywhere}.amount-highlight{color:#dc2626;font-weight:bold}.warning{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;padding:13px;border-radius:8px;margin-top:15px;font-size:13px;line-height:1.5}
+.paid-btn{width:100%;min-height:48px;margin-top:18px;padding:14px;border:0;background:#16a34a;color:#fff;border-radius:8px;font-weight:bold;cursor:pointer}
+.status{display:none;margin-top:15px;padding:13px;background:#ecfdf5;border:1px solid #bbf7d0;color:#166534;border-radius:8px;line-height:1.5}
+.mobile-bottom-nav{display:none}
+@media(max-width:1000px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.plans{grid-template-columns:1fr}.main{padding:22px}}
+@media(max-width:750px){
+#airtelWhatsappBtn,#mtnWhatsappBtn{min-width:0}
+html,body{width:100%;overflow-x:hidden}body{padding-bottom:72px}header{height:60px;padding:0 12px}.logo{font-size:20px;position:absolute;left:60px;transform:none}.header-right{gap:6px}.header-name{display:none}.avatar{width:34px;height:34px}.logout-btn{padding:8px 9px;font-size:12px}
+.sidebar{display:none}.main{width:100%;max-width:100%;padding:15px 12px 90px;margin:0}.welcome h1{font-size:22px;line-height:1.3}.welcome p{font-size:14px;line-height:1.5}.user-id{font-size:12px}
+.notification{font-size:13px;line-height:1.5}.notification button{display:block;margin:12px 0 0!important;width:100%}.hero{width:100%;padding:20px 17px;display:block;border-radius:12px}.hero h2{font-size:20px;line-height:1.35}.hero p{font-size:13px;line-height:1.5;margin-bottom:16px}.start-btn{width:100%;min-height:46px;padding:13px}
+.cards{width:100%;display:grid;grid-template-columns:1fr;gap:12px}.card{width:100%;padding:17px}.card-value{font-size:21px}.section{width:100%;padding:17px;margin-bottom:15px;border-radius:12px}.section h2{font-size:20px}
+.plans{width:100%;display:grid;grid-template-columns:1fr;gap:12px}.plan{width:100%;padding:17px}table{min-width:650px}th,td{padding:11px 9px;font-size:12px;white-space:nowrap}
+.modal{padding:8px}.modal-content{width:100%;max-width:100%;margin:10px auto;padding:19px 15px;border-radius:13px}
+.payment-options{width:100%;grid-template-columns:1fr;gap:10px}.payment-option{width:100%;padding:15px}.payment-panel{width:100%;padding:12px}.instructions{width:100%;padding:13px}.instructions p{font-size:13px;line-height:1.55;overflow-wrap:anywhere}
+.mobile-bottom-nav{position:fixed;display:flex;left:0;right:0;bottom:0;height:68px;background:#15151b;border-top:1px solid #e5e7eb;z-index:999;box-shadow:0 -4px 15px rgba(0,0,0,.08);padding:5px 4px}
+.mobile-bottom-nav button{flex:1;border:0;background:transparent;color:#64748b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;cursor:pointer;min-width:0}
+.mobile-bottom-nav button span{font-size:21px;line-height:1}.mobile-bottom-nav button small{font-size:10px;font-weight:600}.mobile-bottom-nav button:active{transform:scale(.94)}.mobile-bottom-nav button:first-child{color:#dc2626}
+}
+@media(max-width:380px){.main{padding:12px 9px 90px}.welcome h1{font-size:20px}.hero{padding:17px 14px}.hero h2{font-size:18px}.card{padding:15px}.card-value{font-size:19px}.section{padding:14px}.modal{padding:5px}.modal-content{padding:17px 12px}.mobile-bottom-nav{height:64px}.mobile-bottom-nav button span{font-size:19px}.mobile-bottom-nav button small{font-size:9px}}
+
+.site-footer{display:block!important;width:100%!important;padding:24px 16px!important;text-align:center!important;position:relative!important;visibility:visible!important;opacity:1!important}
+.footer-content{display:flex;flex-direction:column;align-items:center;gap:10px}
+.footer-manager-wrap{display:flex!important;flex-wrap:wrap!important;justify-content:center!important;gap:10px!important;margin-top:10px!important}
+.contact-manager-btn{display:inline-block!important;padding:11px 20px!important;border:0!important;border-radius:8px!important;background:#25D366!important;color:#fff!important;font-size:14px!important;font-weight:700!important;cursor:pointer!important;visibility:visible!important;opacity:1!important}
+
+
+
+/* Registration modal: hidden until the Register button is pressed */
+.welcome-modal{display:none;position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,.78);padding:18px;overflow-y:auto;align-items:center;justify-content:center}
+.welcome-modal[style*="display: block"]{display:flex!important}
+.welcome-modal-content{position:relative;width:100%;max-width:460px;margin:auto;padding:28px;background:#15151b;border:1px solid #292932;border-radius:16px;box-shadow:0 18px 50px rgba(0,0,0,.4)}
+.welcome-modal-content h2{margin:0 34px 8px 0;font-size:24px;color:#f3f4f6}
+.welcome-modal-content .subtitle{margin:0 0 20px;color:#a1a1aa;line-height:1.5}
+.welcome-modal-content label{display:block;margin:14px 0 7px;font-size:14px;font-weight:700;color:#f3f4f6}
+.welcome-modal-content input{display:block;width:100%;min-height:46px;padding:12px;border:1px solid #3f3f46;border-radius:8px;background:#1b1b23;color:#f3f4f6;font-size:16px}
+.welcome-modal-content input:focus{outline:2px solid #dc2626;outline-offset:1px}
+.welcome-close{position:absolute;right:17px;top:10px;font-size:30px;line-height:1;color:#a1a1aa;cursor:pointer}
+.welcome-submit{width:100%;min-height:48px;margin-top:22px;padding:13px;border:0;border-radius:9px;background:#dc2626;color:#fff;font-size:15px;font-weight:700;cursor:pointer}
+@media(max-width:500px){.welcome-modal{padding:10px}.welcome-modal-content{padding:22px 17px}.welcome-modal-content h2{font-size:21px}}
+
+.welcome-screen{min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#991b1b,#dc2626)}
+.welcome-card{width:100%;max-width:500px;background:#15151b;border-radius:20px;padding:34px 28px;box-shadow:0 18px 45px rgba(0,0,0,.22);text-align:center}
+.welcome-logo{font-size:34px;font-weight:800;color:#b91c1c;margin-bottom:8px}
+.welcome-card h1{font-size:26px;margin-bottom:10px;color:#172033}
+.welcome-card p{color:#6b7280;line-height:1.6;margin-bottom:24px}
+.welcome-buttons{display:grid;gap:12px}
+.welcome-btn{width:100%;min-height:52px;border:0;border-radius:10px;padding:14px 18px;font-size:16px;font-weight:700;cursor:pointer}
+.welcome-btn.primary{background:#dc2626;color:#fff}
+.welcome-btn.secondary{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
+@media(max-width:500px){.welcome-card{padding:28px 18px}.welcome-card h1{font-size:23px}.welcome-logo{font-size:30px}}
+
+#investmentInfoModal .modal-content{max-height:90vh;overflow-y:auto}
+#investmentInfoModal input[readonly]{background:#f5f5f5;color:#374151}
+
+/* Top left menu */
+.biz-menu-btn{position:fixed;top:15px;left:15px;z-index:2000;background:transparent;color:#111827;border:0;border-radius:8px;padding:8px;font-size:26px;cursor:pointer;line-height:1}
+.biz-menu{display:none;position:fixed;top:60px;left:15px;z-index:1999;background:#15151b;border-radius:12px;box-shadow:0 10px 25px rgba(0,0,0,.2);padding:10px;width:220px}
+.biz-menu a{display:block;text-decoration:none;background:#f5f5f5;color:#111827;padding:12px;margin:6px 0;border-radius:8px;font-weight:700}
+
+/* UGAVEST dark mode */
+html,body{background:#0b0b0f;color:#f3f4f6}
+header,.card,.section,.modal-content,.welcome-card,.welcome-modal-content{background:#15151b!important;color:#f3f4f6}
+.card,.section,.plan,.payment-option,.payment-panel,.instructions{border-color:#292932!important}
+.form-group input,.form-group select{background:#1b1b23!important;color:#f3f4f6!important;border-color:#3f3f46!important}
+.form-group input::placeholder{color:#a1a1aa}
+.welcome-card h1,.welcome-modal-content h2,.section h2,.plan h3,.payment-option h3,
+.payment-panel h3,.modal-content h2,.modal-content h3,.card-value,.welcome-logo{color:#f3f4f6}
+.welcome-card p,.welcome-modal-content .subtitle,.payment-option p,.plan p,.card-title,
+.modal-content p{color:#a1a1aa}
+.payment-option:hover,.payment-option.selected{background:#2a1113!important;border-color:#dc2626!important}
+.instructions{background:#1b1b23!important}
+.mobile-bottom-nav{background:#15151b!important;border-top-color:#292932!important}
+.mobile-bottom-nav button{color:#a1a1aa}
+.biz-menu{background:#15151b!important}
+.biz-menu a{background:#27272a!important;color:#f3f4f6!important}
+.close{color:#a1a1aa}
+table th{color:#a1a1aa}
+table td{border-bottom-color:#292932}
+.user-id{background:#2a1113!important;color:#fca5a5!important}
+.maturity-box{background:#2a1113!important;border-color:#7f1d1d!important}
+
+
+/* Contact Manager options popup */
+.contact-manager-modal{position:fixed;inset:0;z-index:5000;background:rgba(0,0,0,.78);padding:18px;display:none;align-items:center;justify-content:center}
+.contact-manager-popup{position:relative;width:100%;max-width:390px;padding:26px 22px 22px;background:#15151b;border:1px solid #34343d;border-radius:16px;box-shadow:0 20px 55px rgba(0,0,0,.5);color:#f3f4f6}
+.contact-manager-popup h2{margin:0 30px 8px 0;font-size:22px}
+.contact-manager-popup p{margin:0 0 20px;color:#a1a1aa;line-height:1.5}
+.contact-manager-close{position:absolute;right:13px;top:8px;border:0;background:transparent;color:#a1a1aa;font-size:30px;cursor:pointer}
+.contact-option{display:flex;align-items:center;gap:10px;width:100%;box-sizing:border-box;margin-top:12px;padding:15px 14px;border-radius:10px;text-decoration:none;font-weight:700;color:#fff}
+.whatsapp-option{background:#25D366;color:#102016}
+.telephone-option{background:#dc2626}
+.contact-option:focus-visible{outline:3px solid #fff;outline-offset:3px}
+
+</style>
+</head>
+<body>
+
+<div class="biz-menu" id="bizMenu">
+  <a href="#" onclick="openInterestCalculator();return false;">Interest Calculator</a>
+  <a href="https://youtube.com/@learners5684?si=EwCCuFMzUTV56Fkx" target="_blank">About Us</a>
+  <a href="https://youtube.com/@learners5684?si=EwCCuFMzUTV56Fkx" target="_blank">Tutorial</a>
+</div>
+
+
+<div class="welcome-screen" id="welcomeScreen">
+  <div class="welcome-card">
+    <div class="welcome-logo">UGAVEST</div>
+    <h1>Welcome to UGAVEST</h1>
+    <p>Manage your investments, track your portfolio and access your UGAVEST dashboard.</p>
+    <div class="welcome-buttons">
+      <button class="welcome-btn primary" onclick="openRegistrationForm()">New here? Register</button>
+      <button class="welcome-btn secondary" onclick="enterDashboard()">Already registered? Enter Dashboard</button>
+    </div>
+  </div>
+</div>
+
+<div class="welcome-modal" id="registrationFormModal">
+  <div class="welcome-modal-content">
+    <span class="welcome-close" onclick="closeRegistrationForm()">&times;</span>
+    <h2>UGAVEST Registration</h2>
+    <p class="subtitle">Enter your details to set up your investor profile.</p>
+    <form id="registrationForm" onsubmit="submitRegistrationForm(event)">
+      <label for="regFullName">Full Name</label>
+      <input id="regFullName" type="text" autocomplete="name" placeholder="Enter your full name" required>
+      <label for="regAge">Age</label>
+      <input id="regAge" type="number" min="18" max="120" inputmode="numeric" placeholder="Enter your age (18+)" required>
+      <label for="regPhone">Phone Number</label>
+      <input id="regPhone" type="tel" autocomplete="tel" placeholder="Enter your phone number" required>
+      <label for="regEmail">Email Address</label>
+      <input id="regEmail" type="email" autocomplete="email" placeholder="Enter your email address" required>
+      <button class="welcome-submit" type="submit">Send Form to Admin</button>
+    </form>
+  </div>
+</div>
+
+<div id="app">
+<header><div class="logo">UGAVEST</div><div class="header-right"><span class="header-name" id="headerName"></span><div class="avatar" id="avatar"></div><button class="logout-btn" onclick="logoutUser()">Logout</button></div></header>
+
+<div class="layout">
+<aside class="sidebar">
+<h3>Account</h3>
+<a class="active" onclick="goTo('dashboardSection')">Dashboard</a>
+<a onclick="openInvestmentModal()">Invest</a>
+<a onclick="openInvestmentModal()">Deposit</a>
+
+</aside>
+
+<main class="main">
+<div id="dashboardSection" class="welcome">
+<h1>Good morning, <span id="welcomeName">Investor</span> 👋</h1>
+<p>Manage your investments and track your portfolio.</p>
+
+</div>
+
+<section class="hero"><div><h2>Grow Your Money With UGAVEST</h2><p>Choose an investment plan and start building your portfolio.</p></div><button class="start-btn" onclick="openInvestmentModal()">Start Investing</button></section>
+
+<section class="cards">
+<div class="card"><div class="card-title">Available Balance</div><div class="card-value" id="balanceCard">UGX 0</div></div>
+<div class="card"><div class="card-title">Total Invested</div><div class="card-value" id="investedCard">UGX 0</div></div>
+<div class="card"><div class="card-title">Projected Earnings</div><div class="card-value" id="earningsCard">UGX 0</div></div>
+<div class="card"><div class="card-title">Active Investments</div><div class="card-value" id="activeCard">0</div></div>
+</section>
+
+<section class="section">
+<h2>Investment Plans</h2>
+<div class="plans">
+<div class="plan"><h3>3 Months</h3><p>Short-term investment plan.</p><div class="rate">5% / Month</div><button class="invest-btn" onclick="openInvestmentModal('3')">Invest Now</button></div>
+<div class="plan"><h3>6 Months</h3><p>Medium-term investment plan.</p><div class="rate">5% / Month</div><button class="invest-btn" onclick="openInvestmentModal('6')">Invest Now</button></div>
+<div class="plan"><h3>9 Months</h3><p>Medium-term investment plan.</p><div class="rate">5% / Month</div><button class="invest-btn" onclick="openInvestmentModal('9')">Invest Now</button></div>
+<div class="plan"><h3>12 Months</h3><p>Long-term investment plan.</p><div class="rate">5% / Month</div><button class="invest-btn" onclick="openInvestmentModal('12')">Invest Now</button></div>
+</div>
+</section>
+
+
+</main>
+</div>
+
+<nav class="mobile-bottom-nav">
+<button onclick="goTo('dashboardSection')"><span>🏠</span><small>Home</small></button>
+<button onclick="openInvestmentModal()"><span>💰</span><small>Invest</small></button>
+<button onclick="toggleBizMenu(event)"><span>☰</span><small>Menu</small></button>
+
+</nav>
+</div>
+
+<div class="modal" id="investmentModal">
+<div class="modal-content">
+<span class="close" onclick="closeInvestmentModal()">&times;</span>
+<h2>Start Investing</h2>
+<p style="color:#6b7280;margin:8px 0 20px;">Enter your investment amount and select a payment method.</p>
+
+<div class="form-group"><label>Investment Amount — Minimum UGX 10,000</label><input type="number" id="investmentAmount" value="10000" min="10000" oninput="updatePaymentAmount()"></div>
+<div class="form-group"><label>Investment Plan</label><select id="investmentPlan" onchange="updatePaymentAmount()"><option value="3">3 Months</option><option value="6" selected>6 Months</option><option value="9">9 Months</option><option value="12">12 Months</option></select></div>
+<h3>Select Payment Method</h3>
+
+<div class="payment-options">
+<div class="payment-option" id="mtnOption" onclick="showPayment('mtn')"><div class="payment-icon">📱</div><h3>Pay with MTN</h3><p>Use MTN Mobile Money</p></div>
+</div>
+
+<div class="payment-panel" id="mtnPanel">
+<h3>Pay with MTN</h3>
+<div class="instructions">
+<p><strong>1.</strong> Dial <strong>*185#</strong></p>
+<p><strong>2.</strong> Select <strong>1 — Send Money</strong></p>
+<p><strong>3.</strong> Select <strong>1 — Mobile User</strong></p>
+<p><strong>4.</strong> Enter Number That You Are Sending To:<br><span class="number">0764613890 — PENINAH ASASIRA</span></p>
+<p><strong>5.</strong> Enter Amount. <strong id="mtnMinimum">Minimum UGX 10,000</strong><br>Amount: <strong id="mtnAmount" class="amount-highlight">UGX 10,000</strong></p>
+<p><strong>6.</strong> Enter Any Reason.</p>
+<p><strong>7.</strong> Enter PIN to confirm transaction.<br><small>Enter your PIN only in the official MTN USSD prompt.</small></p>
+</div>
+<div class="warning"><strong>Security:</strong> Never enter your MTN Mobile Money PIN into UGAVEST. Enter it only in the official MTN payment interface.</div>
+<div style="display:flex;gap:10px;margin-top:18px;">
+<button class="paid-btn" style="margin-top:0;flex:1;" onclick="paymentSubmitted('MTN')">I Have Paid</button>
+</div>
+</div>
+</div>
+</div>
+
+
+<div class="modal" id="investmentInfoModal">
+  <div class="modal-content">
+    <span class="close" onclick="closeInvestmentInfoModal()">&times;</span>
+    <h2>Investment Information</h2>
+    <p style="color:#6b7280;margin:8px 0 20px;">Confirm your details before sending your investment information to the UGAVEST Admin.</p>
+
+    <div class="form-group">
+      <label>Full Name</label>
+      <input type="text" id="investorName" placeholder="Enter full name">
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="investorEmail" placeholder="Enter email">
+    </div>
+    <div class="form-group">
+      <label>Phone Number</label>
+      <input type="tel" id="investorPhone" placeholder="Enter phone number">
+    </div>
+    <div class="form-group">
+      <label>ID</label>
+      <input type="text" id="investorID" placeholder="Enter ID">
+    </div>
+
+    <h3 style="margin:18px 0 12px;">Investment Details</h3>
+
+    <div class="form-group">
+      <label>Investment Amount</label>
+      <input type="text" id="infoAmount" readonly>
+    </div>
+    <div class="form-group">
+      <label>Investment Term</label>
+      <input type="text" id="infoTerm" readonly>
+    </div>
+    <div class="form-group">
+      <label>Start Date & Time</label>
+      <input type="text" id="infoStart" readonly>
+    </div>
+    <div class="form-group">
+      <label>End Date & Time</label>
+      <input type="text" id="infoEnd" readonly>
+    </div>
+    <div class="form-group">
+      <label>Interest to be Earned</label>
+      <input type="text" id="infoInterest" readonly>
+    </div>
+    <div class="form-group">
+      <label>Projected Earnings / Final Value</label>
+      <input type="text" id="infoProjected" readonly>
+    </div>
+
+    <button class="welcome-submit" type="button" onclick="submitInvestmentInfoForm()">
+      📲 Submit to Admin WhatsApp
+    </button>
+  </div>
+</div>
+
+
+</div>
+
+
+<div class="modal" id="interestCalculatorModal">
+  <div class="modal-content">
+    <span class="close" onclick="closeInterestCalculator()">&times;</span>
+    <h2>Interest Calculator</h2>
+    <p style="color:#6b7280;margin:8px 0 20px;">
+      Calculate your projected interest using the UGAVEST rate of 5% per month.
+    </p>
+
+    <div class="form-group">
+      <label>Investment Amount</label>
+      <input type="number" id="calculatorAmount" min="1" placeholder="Enter amount" oninput="calculateInterest()">
+    </div>
+
+    <div class="form-group">
+      <label>Investment Period</label>
+      <select id="calculatorPeriod" onchange="calculateInterest()">
+        <option value="3">3 Months</option>
+        <option value="6">6 Months</option>
+        <option value="9">9 Months</option>
+        <option value="12">12 Months</option>
+      </select>
+    </div>
+
+    <div class="maturity-box" id="calculatorResult">
+      <strong>Enter an amount to calculate.</strong>
+    </div>
+  </div>
+</div>
+
+
+<script>
+
+
+let currentUser=null;
+function openRegistrationForm(){
+  const modal=document.getElementById("registrationFormModal");
+  if(modal){
+    modal.style.display="flex";
+    document.body.style.overflow="hidden";
+    const firstInput=document.getElementById("regFullName");
+    if(firstInput)firstInput.focus({preventScroll:true});
+  }
+}
+function closeRegistrationForm(){
+  const modal=document.getElementById("registrationFormModal");
+  if(modal)modal.style.display="none";
+  document.body.style.overflow="";
+}
+function submitRegistrationForm(event){
+  if(event)event.preventDefault();
+  const name=document.getElementById("regFullName").value.trim();
+  const age=Number(document.getElementById("regAge").value);
+  const phone=document.getElementById("regPhone").value.trim();
+  const email=document.getElementById("regEmail").value.trim();
+  if(!name||!Number.isInteger(age)||age<18||age>120||!phone||!email){
+    alert("Please enter your full name, a valid age of 18 or older, phone number, and email address.");
+    return;
+  }
+  currentUser={...createDefaultUser(),name,age,phone,email,createdAt:new Date().toISOString()};
+  const message =
+    "UGAVEST NEW USER REGISTRATION REQUEST%0A%0A" +
+    "Full Name: "+encodeURIComponent(name)+"%0A"+
+    "Age: "+encodeURIComponent(String(age))+"%0A"+
+    "Phone Number: "+encodeURIComponent(phone)+"%0A"+
+    "Email Address: "+encodeURIComponent(email)+"%0A%0A"+
+    "Please review this registration request.";
+  const whatsappUrl="https://wa.me/256764613890?text="+message;
+  closeRegistrationForm();
+  window.open(whatsappUrl,"_blank","noopener,noreferrer");
+  const welcome=document.getElementById("welcomeScreen");
+  const app=document.getElementById("app");
+  if(welcome)welcome.style.display="none";
+  if(app)app.style.display="block";
+  updateDashboard();
+}
+function enterDashboard(){
+  currentUser=createDefaultUser();
+  const welcome=document.getElementById("welcomeScreen");
+  const app=document.getElementById("app");
+  if(welcome)welcome.style.display="none";
+  if(app)app.style.display="block";
+  updateDashboard();
+}
+
+const UGAVEST_STORAGE_KEY="ugavest_current_user_v1";
+function createDefaultUser(){
+  return {name:"Investor",age:null,phone:"",email:"",userID:"",createdAt:new Date().toISOString(),balance:0,totalInvested:0,earnings:0,investments:[],transactions:[]};
+}
+function loadCurrentUser(){
+  // Persistence is disabled. A fresh browser session starts with a blank user.
+  return createDefaultUser();
+}
+function saveCurrentUser(){
+  // Keep changes in memory for the current page session only.
+  return true;
+}
+function recalculateUserTotals(){
+  const investments=currentUser.investments||[];
+  currentUser.totalInvested=investments.reduce((sum,item)=>sum+Number(item.amount||0),0);
+  currentUser.earnings=investments.reduce((sum,item)=>sum+Number(item.amount||0)*0.05*Number(item.plan||0),0);
+}
+function formatUGX(amount){
+  return "UGX "+Number(amount||0).toLocaleString("en-UG");
+}
+
+function updateDashboard(){
+  if(!currentUser)return;
+  const name=currentUser.name||"Investor";
+  const welcomeName=document.getElementById("welcomeName");
+  const headerName=document.getElementById("headerName");
+  const avatar=document.getElementById("avatar");
+  if(welcomeName)welcomeName.textContent=name;
+  if(headerName)headerName.textContent=name;
+  if(avatar)avatar.textContent=name.charAt(0).toUpperCase();
+  const balance=document.getElementById("balanceCard");
+  const invested=document.getElementById("investedCard");
+  const earnings=document.getElementById("earningsCard");
+  const active=document.getElementById("activeCard");
+  if(balance)balance.textContent=formatUGX(currentUser.balance);
+  if(invested)invested.textContent=formatUGX(currentUser.totalInvested);
+  if(earnings)earnings.textContent=formatUGX(currentUser.earnings);
+  if(active)active.textContent=currentUser.investments.filter(i=>i.status==="Active").length;
+  renderPortfolio();
+  renderTransactions();
+}
+
+function addMonths(date,months){const result=new Date(date);result.setMonth(result.getMonth()+months);return result}
+function renderPortfolio(){
+const table=document.getElementById("portfolioTable");
+if(!currentUser.investments.length){table.innerHTML='<tr><td colspan="6">No investments yet.</td></tr>';return}
+table.innerHTML=currentUser.investments.map((item,index)=>{
+let countdown="—";
+if(item.status==="Active"){const remaining=new Date(item.maturityDate).getTime()-Date.now();if(remaining>0)countdown=formatRemaining(remaining)}
+const cls=item.status==="Matured"?"status-matured":(item.status==="Pending Verification"?"status-pending":"status-active");
+return `<tr><td>${item.plan} Months</td><td>${formatUGX(item.amount)}</td><td>${formatDate(item.startDate)}</td><td>${formatDate(item.maturityDate)}</td><td class="countdown" id="countdown-${index}">${countdown}</td><td class="${cls}">${item.status}</td></tr>`
+}).join("")
+}
+function formatRemaining(ms){if(ms<=0)return"Matured";const seconds=Math.floor(ms/1000),days=Math.floor(seconds/86400),hours=Math.floor(seconds%86400/3600),minutes=Math.floor(seconds%3600/60);return days+"d "+hours+"h "+minutes+"m"}
+function formatDate(date){return new Date(date).toLocaleDateString("en-UG",{year:"numeric",month:"short",day:"numeric"})}
+function updateCountdowns(){
+  if(!currentUser)return;
+  currentUser.investments.forEach((item,index)=>{
+    const el=document.getElementById("countdown-"+index);
+    if(!el)return;
+    if(item.status==="Active"){
+      const remaining=new Date(item.maturityDate).getTime()-Date.now();
+      if(remaining<=0){item.status="Matured";saveCurrentUser();renderPortfolio()}
+      else el.textContent=formatRemaining(remaining);
+    }else if(item.status==="Matured"){
+      el.textContent="Matured";
+    }else{
+      el.textContent="—";
+    }
+  });
+}
+function renderTransactions(){
+const table=document.getElementById("transactionTable");
+if(!currentUser.transactions.length){table.innerHTML='<tr><td colspan="4">No transactions yet.</td></tr>';return}
+table.innerHTML=currentUser.transactions.map(tx=>`<tr><td>${formatDate(tx.date)}</td><td>${tx.type}</td><td>${formatUGX(tx.amount)}</td><td>${tx.status}</td></tr>`).join("")
+}
+function openInvestmentModal(plan){
+  hideBizMenu();if(!currentUser){alert("Please login first.");return}document.getElementById("investmentModal").style.display="block";if(plan)document.getElementById("investmentPlan").value=plan;updatePaymentAmount()}
+function closeInvestmentModal(){document.getElementById("investmentModal").style.display="none"}
+function showPayment(method){
+  const mp=document.getElementById("mtnPanel");
+  const mo=document.getElementById("mtnOption");
+  if(mp)mp.classList.toggle("active",method==="mtn");
+  if(mo)mo.classList.toggle("selected",method==="mtn");
+  updatePaymentAmount();
+}
+function updatePaymentAmount(){
+  const plan=document.getElementById("investmentPlan").value;
+  let amount=Number(document.getElementById("investmentAmount").value);
+  const minimum=10000;
+  if(!amount||amount<minimum)amount=minimum;
+  document.getElementById("investmentAmount").min=minimum;
+  document.querySelector("#investmentAmount").previousElementSibling.textContent="Investment Amount — Minimum "+formatUGX(minimum);
+  const f=formatUGX(amount);
+  document.getElementById("mtnAmount").textContent=f;
+  const mtnMinimum=document.getElementById("mtnMinimum");
+  if(mtnMinimum)mtnMinimum.textContent="Minimum "+formatUGX(minimum);
+}
+
+let pendingInvestment=null;
+function openInvestmentInfoModal(method){
+  const amount=Number(document.getElementById("investmentAmount").value);
+  const plan=Number(document.getElementById("investmentPlan").value);
+  const minimum=10000;
+
+  if(!amount || amount<minimum){
+    alert("Minimum investment for the "+plan+"-month plan is "+formatUGX(minimum)+".");
+    return;
+  }
+
+  const startDate=new Date();
+  const endDate=addMonths(startDate,plan);
+  pendingInvestment={amount,plan,startDate:startDate.toISOString(),maturityDate:endDate.toISOString(),paymentMethod:method||"Not specified"};
+
+  // 5% simple interest per month on the original principal; no interest-on-interest.
+  const interest=amount*0.05*plan;
+  const projected=amount+interest;
+
+  document.getElementById("investorName").value=currentUser.name||"";
+  document.getElementById("investorEmail").value=currentUser.email||"";
+  document.getElementById("investorPhone").value=currentUser.phone||"";
+  document.getElementById("investorID").value=currentUser.userID||"";
+
+  document.getElementById("infoAmount").value=formatUGX(amount);
+  document.getElementById("infoTerm").value=plan+" Month"+(plan===1?"":"s");
+  document.getElementById("infoStart").value=formatDateTime(startDate);
+  document.getElementById("infoEnd").value=formatDateTime(endDate);
+  document.getElementById("infoInterest").value=formatUGX(interest);
+  document.getElementById("infoProjected").value=formatUGX(projected);
+
+  document.getElementById("investmentInfoModal").style.display="block";
+}
+
+function closeInvestmentInfoModal(){
+  document.getElementById("investmentInfoModal").style.display="none";
+}
+
+function submitInvestmentInfoForm(){
+  const name=document.getElementById("investorName").value.trim();
+  const email=document.getElementById("investorEmail").value.trim();
+  const phone=document.getElementById("investorPhone").value.trim();
+  const id=document.getElementById("investorID").value.trim();
+
+  if(!name||!email||!phone||!id){
+    alert("Please complete your Full Name, Email, Phone Number and ID.");
+    return;
+  }
+  if(!pendingInvestment){
+    alert("Investment details are missing. Please start the investment process again.");
+    return;
+  }
+
+  // Keep this investment in the current page session before opening WhatsApp. Payment is still unverified.
+  const savedAt=new Date().toISOString();
+  const record={
+    id:"INV-"+Date.now(),amount:Number(pendingInvestment.amount),plan:Number(pendingInvestment.plan),
+    startDate:pendingInvestment.startDate,maturityDate:pendingInvestment.maturityDate,
+    paymentMethod:pendingInvestment.paymentMethod,status:"Pending Verification",createdAt:savedAt
+  };
+  currentUser.name=name;currentUser.email=email;currentUser.phone=phone;currentUser.userID=id;
+  currentUser.investments.push(record);
+  currentUser.transactions.push({date:savedAt,type:"Investment submission",amount:record.amount,status:"Pending Verification",investmentId:record.id});
+  recalculateUserTotals();
+  // Saving locally is helpful, but must never block the WhatsApp submission.
+  try { saveCurrentUser(); } catch (saveError) { console.warn("Local save failed; continuing to WhatsApp.", saveError); }
+  try { updateDashboard(); } catch (dashboardError) { console.warn("Dashboard refresh failed.", dashboardError); }
+
+  const message=`UGAVEST Investment Information
+
+Investor Details
+Full Name: ${name}
+Email: ${email}
+Phone Number: ${phone}
+ID: ${id}
+
+Investment Details
+Amount: ${document.getElementById("infoAmount").value}
+Term: ${document.getElementById("infoTerm").value}
+Start Date & Time: ${document.getElementById("infoStart").value}
+End Date & Time: ${document.getElementById("infoEnd").value}
+Interest to be Earned: ${document.getElementById("infoInterest").value}
+Projected Earnings / Final Value: ${document.getElementById("infoProjected").value}
+
+Payment Status: I Have Paid
+
+Please verify this investment information.`;
+
+  const whatsappUrl="https://wa.me/256764613890?text="+encodeURIComponent(message);
+  // Open synchronously from the user's button click; fall back to same-tab navigation.
+  let opened = null;
+  try { opened = window.open(whatsappUrl, "_blank"); } catch (openError) { console.warn("New tab blocked.", openError); }
+  if (!opened) {
+    window.location.assign(whatsappUrl);
+    return;
+  }
+  pendingInvestment=null;
+  closeInvestmentInfoModal();
+}
+
+function formatDateTime(date){
+  return new Date(date).toLocaleString("en-UG",{
+    year:"numeric",
+    month:"short",
+    day:"numeric",
+    hour:"2-digit",
+    minute:"2-digit",
+    second:"2-digit"
+  });
+}
+
+function requestStatement(){
+  if(!currentUser){
+    alert("Please enter the dashboard first.");
+    return;
+  }
+  const investments=currentUser.investments||[];
+  const totalInvested=investments.reduce((sum,i)=>sum+Number(i.amount||0),0);
+  const totalProjected=investments.reduce((sum,i)=>{
+    const months=Number(i.plan||0);
+    return sum+Number(i.amount||0)*(1+0.05*months);
+  },0);
+  const totalProfit=totalProjected-totalInvested;
+
+  let investmentDetails="No investments recorded yet.";
+  if(investments.length){
+    investmentDetails=investments.map((i,n)=>{
+      const amount=Number(i.amount||0);
+      const months=Number(i.plan||0);
+      const projected=amount*(1+0.05*months);
+      const profit=projected-amount;
+      return `${n+1}. ${months}-Month Plan
+Amount: ${formatUGX(amount)}
+Start Date: ${formatDate(i.startDate)}
+Maturity: ${formatDate(i.maturityDate)}
+Status: ${i.status}
+Current/Projected Value: ${formatUGX(projected)}
+Growth: ${formatUGX(profit)}`;
+    }).join("\n\n");
+  }
+
+  const message=`UGAVEST Investment Statement Request
+
+Investor: ${currentUser.name||"Investor"}
+Phone: ${currentUser.phone||"Not provided"}
+Email: ${currentUser.email||"Not provided"}
+
+TOTAL INVESTED: ${formatUGX(totalInvested)}
+TOTAL PROJECTED VALUE: ${formatUGX(totalProjected)}
+TOTAL PROJECTED GROWTH: ${formatUGX(totalProfit)}
+
+INVESTMENT DETAILS:
+${investmentDetails}
+
+Please provide the investor with a full statement showing how far the investment has reached, including verified payments, current status, growth, maturity dates and any eligible withdrawal information.`;
+
+  window.open("https://wa.me/256764613890"+encodeURIComponent(message),"_blank");
+}
+
+function contactManager(){
+  const modal=document.getElementById("contactManagerModal");
+  if(modal){
+    modal.style.display="flex";
+    document.body.style.overflow="hidden";
+  }
+}
+function closeContactManager(){
+  const modal=document.getElementById("contactManagerModal");
+  if(modal)modal.style.display="none";
+  document.body.style.overflow="";
+}
+document.addEventListener("keydown",function(event){
+  if(event.key==="Escape")closeContactManager();
+});
+document.addEventListener("click",function(event){
+  const modal=document.getElementById("contactManagerModal");
+  if(modal && event.target===modal)closeContactManager();
+});
+function paymentSubmitted(method){
+  const amount=Number(document.getElementById("investmentAmount").value);
+  const plan=Number(document.getElementById("investmentPlan").value);
+  const minimum=10000;
+
+  if(!amount || amount<minimum){
+    alert("Minimum investment for the "+plan+"-month plan is "+formatUGX(minimum)+".");
+    return;
+  }
+
+  const status=document.getElementById("mtnStatus");
+  if(status){
+    status.style.display="block";
+    status.textContent="Payment submitted. Complete your investment information.";
+  }
+
+  closeInvestmentModal();
+
+  // Open investor information form directly
+  const info=document.getElementById("investmentInfoModal");
+  if(info){
+    openInvestmentInfoModal(method);
+    info.style.display="block";
+  }else{
+    alert("Investment information form not found.");
+  }
+}
+
+function goTo(id){document.getElementById(id).scrollIntoView({behavior:"smooth"})}
+function logoutUser(){window.location.reload()}
+window.onclick=function(event){
+  const im=document.getElementById("investmentModal");
+  const iim=document.getElementById("investmentInfoModal");
+  if(event.target===im)closeInvestmentModal();
+  if(event.target===iim)closeInvestmentInfoModal();
+}
+window.addEventListener("DOMContentLoaded",function(){
+  const registrationModal=document.getElementById("registrationFormModal");
+  const welcomeScreen=document.getElementById("welcomeScreen");
+  const app=document.getElementById("app");
+  if(registrationModal)registrationModal.style.display="none";
+  if(welcomeScreen)welcomeScreen.style.display="flex";
+  if(app)app.style.display="none";
+  const modal=document.getElementById("registrationFormModal");
+  if(modal){
+    modal.addEventListener("click",function(event){
+      if(event.target===modal)closeRegistrationForm();
+    });
+  }
+});
+window.onload=function(){}
+setInterval(()=>{if(currentUser)updateCountdowns()},1000);
+
+
+function openInterestCalculator(){
+  hideBizMenu();
+  const modal=document.getElementById("interestCalculatorModal");
+  if(modal){
+    modal.style.display="block";
+    document.body.style.overflow="hidden";
+    calculateInterest();
+  }
+}
+
+function closeInterestCalculator(){
+  const modal=document.getElementById("interestCalculatorModal");
+  if(modal)modal.style.display="none";
+  document.body.style.overflow="";
+}
+
+function calculateInterest(){
+  const amount=Number(document.getElementById("calculatorAmount").value);
+  const months=Number(document.getElementById("calculatorPeriod").value);
+  const result=document.getElementById("calculatorResult");
+
+  if(!amount || amount<=0){
+    result.innerHTML="<strong>Enter an amount to calculate.</strong>";
+    return;
+  }
+
+  // 5% simple interest per month on the original principal.
+  const interest=amount*0.05*months;
+  const total=amount+interest;
+
+  result.innerHTML=`
+    <div style="line-height:1.8;">
+      <div><strong>Principal:</strong> ${formatUGX(amount)}</div>
+      <div><strong>Period:</strong> ${months} Month${months===1?"":"s"}</div>
+      <div><strong>Interest Rate:</strong> 5% per month</div>
+      <div><strong>Interest Earned:</strong> ${formatUGX(interest)}</div>
+      <div style="font-size:18px;margin-top:8px;"><strong>Projected Final Value:</strong> ${formatUGX(total)}</div>
+    </div>
+  `;
+}
+
+
+function hideBizMenu(){
+  const m=document.getElementById("bizMenu");
+  if(m)m.style.display="none";
+}
+
+
+document.addEventListener("click",function(event){
+  const menu=document.getElementById("bizMenu");
+  if(!menu)return;
+
+  // Any click outside the menu closes it.
+  if(!menu.contains(event.target)) hideBizMenu();
+
+  // If a modal opens, make sure the menu is hidden.
+  const modals=document.querySelectorAll(".modal,.welcome-modal");
+  modals.forEach(function(modal){
+    if(modal.style.display==="block") hideBizMenu();
+  });
+});
+
+function toggleBizMenu(event){
+  if(event)event.stopPropagation();
+  const m=document.getElementById("bizMenu");
+  if(m)m.style.display=m.style.display==="block"?"none":"block";
+}
+</script>
+<footer class="site-footer">
+<div class="footer-content">
+<p>© 2026 UGAVEST. All rights reserved.</p>
+<div class="footer-manager-wrap">
+<button type="button" class="contact-manager-btn" onclick="contactManager()">💬 Contact Manager</button>
+<button type="button" class="contact-manager-btn" onclick="requestStatement()">📄 Request Statement</button>
+
+
+</div>
+</div>
+</footer>
+
+<!-- Contact Manager popup -->
+<div id="contactManagerModal" class="contact-manager-modal" role="dialog" aria-modal="true" aria-labelledby="contactManagerTitle" style="display:none">
+  <div class="contact-manager-popup">
+    <button type="button" class="contact-manager-close" aria-label="Close" onclick="closeContactManager()">×</button>
+    <h2 id="contactManagerTitle">Contact Manager</h2>
+    <p>Choose how you would like to contact Peninah Asasira.</p>
+    <a class="contact-option whatsapp-option" href="https://wa.me/256764613890" target="_blank" rel="noopener noreferrer" onclick="closeContactManager()">💬 Option 1 — WhatsApp</a>
+    <a class="contact-option telephone-option" href="tel:0764613890" onclick="closeContactManager()">📞 Option 2 — Telephone</a>
+  </div>
+</div>
+
+</body>
+</html>
